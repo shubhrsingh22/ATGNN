@@ -1,0 +1,28 @@
+# --------- pytorch --------- #
+torch>=2.0.0
+torchaudio>=2.0.0
+pytorch-lightning>=2.1.0
+torchmetrics>=1.2.0
+timm==0.4.5
+
+# --------- hydra --------- #
+hydra-core==1.3.2
+hydra-colorlog==1.2.0
+omegaconf>=2.3.0
+rootutils==1.0.7
+
+# --------- data --------- #
+h5py>=3.9.0
+librosa>=0.10.0
+soundfile>=0.12.0
+numpy
+pandas
+scikit-learn
+
+# --------- loggers --------- #
+tensorboard
+# wandb # uncomment to use the wandb logger
+
+# --------- others --------- #
+rich
+tqdm

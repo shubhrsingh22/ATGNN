@@ -1,0 +1,24 @@
+# Configuration for the FSD50K dataset.
+# Run `python data_prep/prep_fsd50k.py` first to generate the HDF5 files,
+# JSON manifests and label CSV under ${paths.exp_dir}/hdf_fsd50k/.
+_target_: src.data.fsd_datamodule.FSDDataModule
+json_path: ${paths.exp_dir}/hdf_fsd50k/datafiles/
+data_dir: ${paths.data_dir}
+meta_path: ${paths.data_dir}/ground_truth
+label_csv_pth: ${paths.exp_dir}/hdf_fsd50k/datafiles/class_labels_indices.csv
+batch_size: 32 # per device
+num_workers: 8
+pin_memory: True
+persistent_workers: True
+sr: 16000
+fmin: 20
+fmax: 8000
+num_mels: 128
+window_type: hanning
+target_len: 1024
+freqm: 48
+timem: 192
+mixup: 0.5
+norm_mean: -4.6476
+norm_std: 4.5699
+num_devices: ${trainer.devices}

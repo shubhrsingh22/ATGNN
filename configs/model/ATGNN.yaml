@@ -1,0 +1,41 @@
+_target_: src.models.tagging_module.TaggingModule
+
+# Training recipe follows the ATGNN paper (arXiv:2311.01526): Adam, initial LR 5e-4,
+# 1000-iteration linear warmup, LR halved every 5 epochs after epoch 10, BCE loss.
+optimizer:
+  _target_: torch.optim.Adam
+  _partial_: true
+  lr: 5e-4
+  weight_decay: 5e-7
+  eps: 1e-8
+  betas: [0.95, 0.999]
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.MultiStepLR
+  _partial_: true
+  milestones: [10, 15, 20, 25, 30, 35, 40, 45]
+  gamma: 0.5
+
+net:
+  _target_: src.models.components.atgnn.ATGNN
+  k: 9 # k-NN for the PGN (patch) graph
+  k_plg: 9 # k-NN for the PLG (patch-label) graph
+  act: 'gelu'
+  norm: 'batch'
+  bias: True
+  dropout: 0.0
+  epsilon: 0.2
+  use_stochastic: False
+  drop_path: 0.1
+  size: 's' # pyr-s: channels [80, 160, 400, 640], PGN blocks [2, 2, 6, 2]
+  num_class: 200 # FSD50K
+  freq_num: 128
+  time_num: 1024
+  conv: 'mr'
+  use_mlg: True # False -> encoder-only (PGN backbone, "-MLG" in the paper)
+  mlg_blocks: [1, 1, 3, 1] # MLG blocks per stage (pyr-s)
+
+compile: false
+loss: 'bcelogit'
+opt_warmup: True
+learning_rate: 5e-4

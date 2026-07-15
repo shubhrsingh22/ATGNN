@@ -1,0 +1,25 @@
+# Path configuration.
+# All machine-specific locations can be overridden via environment variables
+# (DATA_DIR, EXP_DIR) or from the command line, e.g.:
+#   python src/train.py paths.data_dir=/path/to/FSD50K paths.exp_dir=/path/to/experiments
+
+# path to root directory (set automatically by rootutils via the .project-root file)
+root_dir: ${oc.env:PROJECT_ROOT}
+
+# directory for experiment artifacts (prepared HDF5 audio, manifests, checkpoints)
+exp_dir: ${oc.env:EXP_DIR,${paths.root_dir}/experiments}
+
+# path to the raw dataset root (e.g. the extracted FSD50K folder containing
+# dev_audio/, eval_audio/ and ground_truth/)
+data_dir: ${oc.env:DATA_DIR,${paths.root_dir}/data/FSD50K}
+
+# path to logging directory
+log_dir: ${paths.exp_dir}/logs/
+
+# path to output directory, created dynamically by hydra
+# path generation pattern is specified in `configs/hydra/default.yaml`
+# use it to store all files generated during the run, like ckpts and metrics
+output_dir: ${hydra:runtime.output_dir}
+
+# path to working directory
+work_dir: ${hydra:runtime.cwd}

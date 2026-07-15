@@ -1,0 +1,41 @@
+# @package _global_
+
+# specify here default configuration
+# order of defaults determines the order in which configs override each other
+defaults:
+  - _self_
+  - data: fsd
+  - model: ATGNN
+  - callbacks: default
+  - logger: tensorboard # set logger here or use command line (e.g. `python src/train.py logger=wandb`)
+  - trainer: default
+  - paths: default
+  - extras: default
+  - hydra: default
+
+# task name, determines output directory path
+task_name: "train-fsd50k"
+
+# initialisation: "img" (ImageNet-pretrained ViG checkpoint), "audioset" (AudioSet
+# checkpoint) or null to train from scratch
+pretrained: img # "img" (ImageNet Pyramid ViG), "audioset" or null (from scratch)
+pretrain_path: ${paths.exp_dir}/pretrained/pvig_s_82.1.pth.tar
+
+# tags to help you identify your experiments
+# overwrite from command line with `python src/train.py tags="[first_tag, second_tag]"`
+tags: ["fsd50k"]
+
+# set False to skip model training
+train: True
+
+# evaluate on the eval set after training, using the best checkpoint
+eval: True
+
+# evaluate a weighted average of the saved checkpoints (checkpoint averaging)
+wa: False
+
+# path to a checkpoint to resume training from
+ckpt_path: null
+
+# seed for random number generators in pytorch, numpy and python.random
+seed: 42
