@@ -62,9 +62,11 @@ export DATA_DIR=/path/to/FSD50K
 export EXP_DIR=/path/to/experiments
 
 # full ATGNN (PGN encoder + MLG blocks) on 4 GPUs
-./run.sh
+# fp32 + gradient clipping: the LLG adjacency multiplication is numerically
+# unstable under fp16 mixed precision (loss goes NaN around epoch 6)
+./run.sh trainer.precision=32 trainer.gradient_clip_val=1.0
 
-# encoder-only variant (no MLG blocks)
+# encoder-only variant (no MLG blocks) - stable in 16-mixed
 ./run.sh model.net.use_mlg=False task_name=train-fsd50k-encoder-only
 ```
 
@@ -75,15 +77,30 @@ eval set automatically after training.
 
 ## Results
 
-To be filled in after the runs complete.
+Both variants trained on 4x NVIDIA L40S (DDP, batch 24 per GPU, effective 96),
+PGN encoder initialised from ImageNet Pyramid ViG-S, 50 epochs. `eval mAP` is
+the FSD50K evaluation set score of the best-validation checkpoint.
 
-| Model | Pretrain (PGN) | val mAP | eval mAP |
-| ----- | -------------- | ------- | -------- |
-| ATGNN-pyr-s, encoder only (-MLG) | ImageNet | - | - |
-| ATGNN-pyr-s, full (+MLG) | ImageNet | - | - |
+| Model | Params | Precision | best val mAP | eval mAP |
+| ----- | ------ | --------- | ------------ | -------- |
+| ATGNN-pyr-s, encoder only (-MLG) | 38.9M | 16-mixed | 0.597 | 0.575 |
+| ATGNN-pyr-s, full (+MLG) | 47.5M | 32 | **0.601** | **0.580** |
 
-Paper reference (Table III): ATGNN-pyr-s 0.583, ATGNN-pyr-s (-MLG) n/a on FSD50K
-(AudioSet-balanced ablation: 0.335 vs 0.331 with/without MLG).
+For comparison, the paper (Table III) reports 0.583 eval mAP for ATGNN-pyr-s on
+FSD50K, and its AudioSet-balanced ablation shows a similarly small MLG gain
+(0.335 vs 0.331). [LHGNN](https://github.com/shubhrsingh22/Local-Higher-GNN)
+trained from scratch with the same data pipeline reaches 0.535 eval mAP.
+
+Notes from the runs:
+
+- The MLG blocks add +0.005 eval mAP over the encoder alone, matching the
+  paper's finding that most of the performance comes from the PGN encoder.
+- The full model diverged (NaN loss at epoch 6) under fp16 mixed precision;
+  the learnable label-label adjacency (`L_hat = A L + L`, applied at every
+  stage without normalisation) amplifies activations beyond fp16 range.
+  Training in fp32 with `gradient_clip_val=1.0` is stable end to end.
+- ImageNet initialisation is highly effective: the encoder-only model reaches
+  0.4 val mAP within 3 epochs.
 
 ## Citation
 
