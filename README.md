@@ -101,6 +101,23 @@ Notes from the runs:
   Training in fp32 with `gradient_clip_val=1.0` is stable end to end.
 - ImageNet initialisation is highly effective: the encoder-only model reaches
   0.4 val mAP within 3 epochs.
+- The parameter counts in the table above include the frozen relative-position
+  tables; trainable parameters are 26.8M (encoder only) and 35.4M (full).
+
+## Parameter count and walltime
+
+Measured with `scripts/params_walltime.py` (single L40S, float32, no
+JIT/torch.compile, batch 24 x 10 s clips of 1024x128 log-mel):
+
+| Model | Trainable params (M) | Train step (ms) | Inference (ms/clip) |
+|---|---|---|---|
+| ATGNN-s encoder only (-MLG) | 26.8 | 258.0 | 5.08 |
+| ATGNN-s full (+MLG) | 35.4 | 289.9 | 5.70 |
+| LHGNN-s (same input/batch/GPU) | 31.1 | 643.2 | 14.52 |
+
+The MLG blocks add ~12% to the training step time. Full environment details
+are recorded in `results/params_walltime.md`; parameter count does not
+directly translate to speed.
 
 ## Citation
 
