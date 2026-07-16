@@ -149,6 +149,10 @@ spectrogram. Per-class frequencies and the top-100 pairs (with conditional
 probabilities and normalised PMI) are written to `results/label_stats.csv`
 and `results/top_label_pairs.csv`.
 
+A plain-language walkthrough of this analysis (the figure explained panel by
+panel and how it motivates the architecture) is available as a downloadable
+PDF: [`examples/label_cooccurrence_explained.pdf`](examples/label_cooccurrence_explained.pdf).
+
 ## Citation
 
 ```
