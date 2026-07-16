@@ -119,6 +119,36 @@ The MLG blocks add ~12% to the training step time. Full environment details
 are recorded in `results/params_walltime.md`; parameter count does not
 directly translate to speed.
 
+## Label co-occurrence analysis (why label graphs?)
+
+`scripts/label_cooccurrence_fsd50k.py` quantifies the label structure that the
+PLG/LLG blocks are designed to exploit, using the official FSD50K ground truth:
+
+```bash
+python scripts/label_cooccurrence_fsd50k.py \
+    --gt_dir $DATA_DIR/ground_truth --out_dir results
+```
+
+![FSD50K label statistics](results/label_cooccurrence.png)
+
+Key numbers (dev + eval, 51,197 clips, 200 classes):
+
+- **84.3% of clips are multi-label** (mean 2.99, median 3, max 22 labels per
+  clip) — audio tagging on FSD50K is fundamentally a multi-label problem.
+- **169 of 200 classes have a co-occurring label with conditional probability
+  P(j|i) > 0.5**, largely reflecting the AudioSet ontology (e.g. every
+  `Electric_guitar` clip is also `Guitar`/`Music`), plus non-hierarchical
+  regularities (e.g. `Wild_animals` with `Bird`).
+- The most frequent pairs: Music + Musical_instrument (14,703 clips),
+  Musical_instrument + Percussion (3,977), Music + Percussion (3,977).
+
+These strong, structured label correlations are exactly what the LLG block's
+learnable adjacency can capture, and the per-class patch attachment of the PLG
+block lets co-occurring labels bind to different regions of the same
+spectrogram. Per-class frequencies and the top-100 pairs (with conditional
+probabilities and normalised PMI) are written to `results/label_stats.csv`
+and `results/top_label_pairs.csv`.
+
 ## Citation
 
 ```
